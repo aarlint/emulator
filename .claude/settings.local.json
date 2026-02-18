@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.linuxserver.io)",
+      "Bash(docker compose:*)",
+      "WebFetch(domain:emulatorjs.org)",
+      "Bash(docker ps:*)",
+      "WebFetch(domain:prowlarr.com)",
+      "WebFetch(domain:wiki.sabnzbd.org)",
+      "WebFetch(domain:sabnzbd.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(sqlite3:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:www.newznab.com)",
+      "WebFetch(domain:newznab.github.io)",
+      "Bash(docker network ls:*)",
+      "Bash(docker network inspect:*)",
+      "Bash(npm install:*)",
+      "Bash(docker run:*)",
+      "Bash(docker exec:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(while IFS= read -r f)",
+      "Bash(do cp \"$f\" /home/austin/emulator/data/segaMD/)",
+      "Bash(done)",
+      "Bash(do cp \"$f\" /home/austin/emulator/data/snes/)",
+      "Bash(gh api:*)",
+      "Bash(head:*)"
+    ]
+  }
+}

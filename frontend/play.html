@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Now Playing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #06060e;
+    --text-dim: #4a4a6a;
+    --text-mid: #8888aa;
+    --text-bright: #e0e0f0;
+  }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-bright);
+    font-family: 'Chakra Petch', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: #0a0a16;
+    border-bottom: 1px solid #1a1a2e;
+    z-index: 10;
+  }
+
+  .topbar__back {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-dim);
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #1a1a2e;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+  .topbar__back:hover { color: var(--text-bright); border-color: var(--text-mid); }
+
+  .topbar__title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    color: var(--text-mid);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .emulator-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #000;
+  }
+
+  #game {
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 4/3;
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/" class="topbar__back">&#9664; Library</a>
+    <span class="topbar__title" id="gameTitle">Loading...</span>
+  </div>
+  <div class="emulator-wrap">
+    <div id="game"></div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const core = params.get('core');
+  const rom = params.get('rom');
+  const name = params.get('name') || 'Unknown Game';
+
+  document.getElementById('gameTitle').textContent = name;
+  document.title = name + ' — Arcade Vault';
+
+  // Detect iOS/iPadOS (modern iPads report as MacIntel)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (!core || !rom) {
+    document.getElementById('game').innerHTML = '<p style="color:#e63946;font-family:monospace;text-align:center;padding:2rem;">Missing core or rom parameter.</p>';
+  } else {
+    EJS_player = '#game';
+    EJS_core = core;
+    EJS_gameUrl = decodeURIComponent(rom);
+    EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+    EJS_color = '#1a1a2e';
+    EJS_gameName = name;
+
+    // iOS stability: disable threads to halve WASM memory usage
+    EJS_threads = false;
+
+    // iOS stability: limit ROM cache (default 1GB is too much for iPad)
+    EJS_CacheLimit = isIOS ? 67108864 : 1073741824; // 64MB iOS, 1GB desktop
+
+    if (isIOS) {
+      // Reduce canvas size — Retina 2x/3x multiplies the WebGL framebuffer
+      document.getElementById('game').style.maxWidth = '640px';
+    }
+  }
+</script>
+<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCADE VAULT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root {
+    --bg-deep: #06060e;
+    --bg-card: #0c0c1a;
+    --bg-card-hover: #12122a;
+    --n64-primary: #e63946;
+    --n64-glow: #e6394688;
+    --segaMD-primary: #00d4ff;
+    --segaMD-glow: #00d4ff66;
+    --snes-primary: #a855f7;
+    --snes-glow: #a855f766;
+    --text-dim: #4a4a6a;
+    --text-mid: #8888aa;
+    --text-bright: #e0e0f0;
+    --scanline-opacity: 0.035;
+  }
+
+  html { scroll-behavior: smooth }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-bright);
+    font-family: 'Chakra Petch', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,var(--scanline-opacity)) 2px, rgba(0,0,0,var(--scanline-opacity)) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .bg-glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(180px);
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-glow--red { background: var(--n64-primary); top: -200px; left: -100px; }
+  .bg-glow--blue { background: var(--segaMD-primary); top: 40%; right: -200px; }
+  .bg-glow--purple { background: var(--snes-primary); bottom: -200px; left: 30%; }
+
+  /* Header */
+  .header {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 3.5rem 1.5rem 2rem;
+  }
+  .header__title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    letter-spacing: 0.15em;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 40px rgba(168,85,247,0.25), 0 0 80px rgba(230,57,70,0.15);
+    animation: titlePulse 4s ease-in-out infinite alternate;
+  }
+  @keyframes titlePulse {
+    0% { text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 40px rgba(168,85,247,0.25), 0 0 80px rgba(230,57,70,0.15); }
+    100% { text-shadow: 0 0 15px rgba(255,255,255,0.5), 0 0 60px rgba(168,85,247,0.35), 0 0 100px rgba(230,57,70,0.25); }
+  }
+  .header__sub {
+    font-size: 0.75rem; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--text-dim); margin-top: 0.75rem;
+  }
+  .header__line {
+    width: min(400px, 80%); height: 1px; margin: 1.5rem auto 0;
+    background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
+  }
+
+  .vault { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 5rem; }
+
+  /* Console picker grid */
+  .console-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .console-card {
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2.5rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid #1a1a2e;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    overflow: hidden;
+  }
+  .console-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .console-card:hover { transform: translateY(-4px); border-color: #2a2a4e; }
+  .console-card:hover::before { opacity: 1; }
+
+  .console-card[data-theme="n64"]::before { background: radial-gradient(ellipse at center, var(--n64-glow) 0%, transparent 70%); }
+  .console-card[data-theme="n64"]:hover { box-shadow: 0 8px 30px -10px var(--n64-glow); }
+  .console-card[data-theme="segaMD"]::before { background: radial-gradient(ellipse at center, var(--segaMD-glow) 0%, transparent 70%); }
+  .console-card[data-theme="segaMD"]:hover { box-shadow: 0 8px 30px -10px var(--segaMD-glow); }
+  .console-card[data-theme="snes"]::before { background: radial-gradient(ellipse at center, var(--snes-glow) 0%, transparent 70%); }
+  .console-card[data-theme="snes"]:hover { box-shadow: 0 8px 30px -10px var(--snes-glow); }
+
+  .console-card__tag {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .console-card[data-theme="n64"] .console-card__tag { color: var(--n64-primary); border-color: var(--n64-glow); }
+  .console-card[data-theme="segaMD"] .console-card__tag { color: var(--segaMD-primary); border-color: var(--segaMD-glow); }
+  .console-card[data-theme="snes"] .console-card__tag { color: var(--snes-primary); border-color: var(--snes-glow); }
+
+  .console-card__name {
+    font-size: 1.1rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-bright); position: relative;
+  }
+  .console-card__count {
+    font-size: 0.7rem; color: var(--text-dim);
+    margin-top: 0.5rem; letter-spacing: 0.05em; position: relative;
+  }
+
+  /* Games view toolbar */
+  .toolbar {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem; flex-wrap: wrap;
+  }
+  .toolbar__back {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    border-radius: 2px;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .toolbar__back:hover { color: #fff; border-color: #fff; }
+
+  .toolbar__filter {
+    flex: 1; min-width: 180px;
+    padding: 0.5rem 0.8rem;
+    background: var(--bg-card);
+    border: 1px solid #1a1a2e;
+    border-radius: 2px;
+    color: var(--text-bright);
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 0.85rem;
+  }
+  .toolbar__filter:focus {
+    outline: none;
+    border-color: var(--text-mid);
+    box-shadow: 0 0 8px rgba(136,136,170,0.2);
+  }
+  .toolbar__filter::placeholder { color: var(--text-dim); }
+
+  .toolbar__count {
+    font-size: 0.7rem; color: var(--text-dim);
+    letter-spacing: 0.05em; flex-shrink: 0;
+  }
+
+  /* Console header in games view */
+  .games-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 0.75rem; padding-bottom: 0.75rem;
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .games-header__icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid; border-radius: 2px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .games-header__name {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  [data-theme="n64"] .games-header__icon { color: var(--n64-primary); border-color: var(--n64-glow); }
+  [data-theme="n64"] .games-header__name { color: var(--n64-primary); }
+  [data-theme="segaMD"] .games-header__icon { color: var(--segaMD-primary); border-color: var(--segaMD-glow); }
+  [data-theme="segaMD"] .games-header__name { color: var(--segaMD-primary); }
+  [data-theme="snes"] .games-header__icon { color: var(--snes-primary); border-color: var(--snes-glow); }
+  [data-theme="snes"] .games-header__name { color: var(--snes-primary); }
+
+  /* Game grid */
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .game-card {
+    position: relative;
+    display: flex; align-items: center; gap: 0.85rem;
+    padding: 0.9rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid #1a1a2e;
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--text-mid);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .game-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0;
+    width: 2px; height: 100%;
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  .game-card:hover {
+    background: var(--bg-card-hover);
+    border-color: #2a2a4e;
+    color: var(--text-bright);
+    transform: translateX(3px);
+  }
+  .game-card:hover::before { opacity: 1; }
+
+  [data-theme="n64"] .game-card::before { background: var(--n64-primary); }
+  [data-theme="n64"] .game-card:hover { box-shadow: -2px 0 20px -8px var(--n64-glow), inset 0 0 30px -20px var(--n64-glow); }
+  [data-theme="segaMD"] .game-card::before { background: var(--segaMD-primary); }
+  [data-theme="segaMD"] .game-card:hover { box-shadow: -2px 0 20px -8px var(--segaMD-glow), inset 0 0 30px -20px var(--segaMD-glow); }
+  [data-theme="snes"] .game-card::before { background: var(--snes-primary); }
+  [data-theme="snes"] .game-card:hover { box-shadow: -2px 0 20px -8px var(--snes-glow), inset 0 0 30px -20px var(--snes-glow); }
+
+  .game-card__index {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem; color: var(--text-dim);
+    min-width: 1.8rem; text-align: right; flex-shrink: 0;
+  }
+  .game-card__name {
+    font-size: 0.85rem; font-weight: 600;
+    line-height: 1.35; letter-spacing: 0.01em;
+  }
+  .game-card__play {
+    margin-left: auto;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.4rem; letter-spacing: 0.1em;
+    opacity: 0; transition: opacity 0.2s ease;
+    flex-shrink: 0; color: inherit;
+  }
+  .game-card:hover .game-card__play { opacity: 0.6; }
+
+  .game-card {
+    opacity: 0; transform: translateY(12px);
+    animation: cardIn 0.35s ease forwards;
+  }
+  @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
+
+  .no-results {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-dim); font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Footer */
+  .footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 2rem 1rem 2.5rem;
+    font-size: 0.6rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim);
+    border-top: 1px solid #111122;
+  }
+  .footer span { opacity: 0.5; }
+
+  @media (max-width: 600px) {
+    .header { padding: 2.5rem 1rem 1.5rem; }
+    .header__title { font-size: 1.3rem; }
+    .console-grid { grid-template-columns: 1fr; }
+    .game-grid { grid-template-columns: 1fr; }
+    .game-card__play { opacity: 0.4; }
+    .toolbar { flex-direction: column; }
+    .toolbar__filter { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-glow bg-glow--red"></div>
+  <div class="bg-glow bg-glow--blue"></div>
+  <div class="bg-glow bg-glow--purple"></div>
+
+  <header class="header">
+    <h1 class="header__title">ARCADE VAULT</h1>
+    <p class="header__sub" id="headerSub">Choose your console</p>
+    <div class="header__line"></div>
+  </header>
+
+  <main class="vault" id="vault"></main>
+
+  <footer class="footer"><span>Powered by EmulatorJS &middot; All games run in-browser</span></footer>
+
+<script>
+const vault = document.getElementById('vault');
+const headerSub = document.getElementById('headerSub');
+let library = [];
+
+async function loadLibrary() {
+  try {
+    const res = await fetch('/api/library');
+    library = await res.json();
+  } catch {
+    vault.innerHTML = '<p style="color:#e63946;text-align:center;padding:2rem;">Failed to load game library</p>';
+  }
+}
+
+// --- Console picker view ---
+function showConsoles() {
+  headerSub.textContent = 'Choose your console';
+  vault.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'console-grid';
+
+  library.forEach(c => {
+    if (c.games.length === 0) return;
+    const card = document.createElement('div');
+    card.className = 'console-card';
+    card.setAttribute('data-theme', c.theme);
+    card.innerHTML = `
+      <span class="console-card__tag">${c.tag}</span>
+      <span class="console-card__name">${c.name}</span>
+      <span class="console-card__count">${c.games.length} title${c.games.length !== 1 ? 's' : ''}</span>
+    `;
+    card.onclick = () => showGames(c.id);
+    grid.appendChild(card);
+  });
+
+  vault.appendChild(grid);
+}
+
+// --- Games list view with filter ---
+function showGames(consoleId) {
+  const c = library.find(x => x.id === consoleId);
+  if (!c) return;
+
+  headerSub.textContent = 'Select a cartridge to begin';
+  vault.innerHTML = '';
+
+  const section = document.createElement('div');
+  section.setAttribute('data-theme', c.theme);
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'games-header';
+  header.innerHTML = `
+    <span class="games-header__icon">${c.tag}</span>
+    <h2 class="games-header__name">${c.name}</h2>
+  `;
+  section.appendChild(header);
+
+  // Toolbar
+  const toolbar = document.createElement('div');
+  toolbar.className = 'toolbar';
+  toolbar.innerHTML = `
+    <button class="toolbar__back" id="backBtn">&larr; BACK</button>
+    <input type="text" class="toolbar__filter" id="filterInput" placeholder="Filter games..." autocomplete="off">
+    <span class="toolbar__count" id="filterCount">${c.games.length} games</span>
+  `;
+  section.appendChild(toolbar);
+
+  // Game grid container
+  const grid = document.createElement('div');
+  grid.className = 'game-grid';
+  grid.id = 'gameGrid';
+  section.appendChild(grid);
+
+  vault.appendChild(section);
+
+  // Render games
+  function renderGames(filter) {
+    const q = filter.toLowerCase();
+    const filtered = q ? c.games.filter(g => g.name.toLowerCase().includes(q)) : c.games;
+
+    document.getElementById('filterCount').textContent =
+      filtered.length === c.games.length
+        ? `${filtered.length} games`
+        : `${filtered.length} / ${c.games.length} games`;
+
+    grid.innerHTML = filtered.length === 0
+      ? '<div class="no-results">No games match your filter</div>'
+      : filtered.map((game, i) => {
+          const romUrl = c.romPath + encodeURIComponent(game.file);
+          const href = `play.html?core=${c.core}&rom=${encodeURIComponent(romUrl)}&name=${encodeURIComponent(game.name)}`;
+          const delay = Math.min(i * 0.02, 1);
+          return `
+            <a href="${href}" class="game-card" style="animation-delay:${delay.toFixed(2)}s">
+              <span class="game-card__index">${String(i + 1).padStart(3, '0')}</span>
+              <span class="game-card__name">${game.name}</span>
+              <span class="game-card__play">PLAY &#9654;</span>
+            </a>`;
+        }).join('');
+  }
+
+  renderGames('');
+
+  document.getElementById('backBtn').onclick = showConsoles;
+  const filterInput = document.getElementById('filterInput');
+  filterInput.focus();
+  filterInput.oninput = () => renderGames(filterInput.value);
+}
+
+// Init
+loadLibrary().then(() => showConsoles());
+</script>
+</body>
+</html>

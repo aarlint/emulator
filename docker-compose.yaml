@@ -1,0 +1,22 @@
+services:
+  emulator:
+    image: cgr.dev/chainguard/node:latest
+    container_name: emulator
+    restart: unless-stopped
+    working_dir: /app
+    command: ["server.js"]
+    volumes:
+      - ./server.js:/app/server.js:ro
+      - ./package.json:/app/package.json:ro
+      - ./node_modules:/app/node_modules:ro
+      - ./frontend:/app/public:ro
+      - ./data:/data/roms:ro
+    networks:
+      - traefik-proxy
+    labels:
+      - "traefik.docker.network=traefik-proxy"
+      - "traefik.http.services.emulator.loadbalancer.server.port=3000"
+
+networks:
+  traefik-proxy:
+    external: true
