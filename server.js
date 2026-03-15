@@ -8,9 +8,9 @@ const ROM_BASE = '/data/roms';
 const PORT = 3000;
 
 const CONSOLES = {
-  n64:    { name: 'Nintendo 64',    tag: 'N64',  core: 'n64',    dir: 'n64',    extensions: ['.zip','.n64','.z64','.v64'] },
-  segaMD: { name: 'Sega Genesis',   tag: 'GEN',  core: 'segaMD', dir: 'segaMD', extensions: ['.zip','.md','.bin','.gen','.smd'] },
-  snes:   { name: 'Super Nintendo', tag: 'SNES', core: 'snes',   dir: 'snes',   extensions: ['.zip','.sfc','.smc'] },
+  n64:    { name: 'Nintendo 64',    tag: 'N64',  core: 'n64',    dir: 'N64',             extensions: ['.zip','.n64','.z64','.v64'] },
+  segaMD: { name: 'Sega Genesis',   tag: 'GEN',  core: 'segaMD', dir: 'Sega',            extensions: ['.zip','.md','.bin','.gen','.smd'] },
+  snes:   { name: 'Super Nintendo', tag: 'SNES', core: 'snes',   dir: 'Super Nintendo',  extensions: ['.zip','.sfc','.smc'] },
 };
 
 // Static frontend
