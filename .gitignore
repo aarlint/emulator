@@ -1,8 +1,7 @@
 node_modules/
 .env
-*.db
-*.db-shm
-*.db-wal
-data/
-config/
-
+Super Nintendo/
+N64/
+Sega/
+Playstation/
+data/snes/
