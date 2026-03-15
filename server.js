@@ -14,7 +14,7 @@ const CONSOLES = {
 };
 
 // Static frontend
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // ROM files (replaces nginx /roms/ alias)
 app.use('/roms', express.static(ROM_BASE));
@@ -85,7 +85,7 @@ function cleanName(filename) {
 
 // SPA fallback
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
 app.listen(PORT, () => console.log(`Arcade Vault API running on :${PORT}`));
